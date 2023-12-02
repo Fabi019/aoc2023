@@ -2,14 +2,10 @@ static INPUT: &str = include_str!("../../assets/day01.txt");
 
 fn main() {
     let now = std::time::Instant::now();
-    let s = part1(INPUT); // 54951
-    println!("Took: {:?}", now.elapsed());
-    println!("Part 1: {}", s);
+    println!("Part 1: {} ({:?})", part1(INPUT), now.elapsed()); // 54951
 
     let now = std::time::Instant::now();
-    let s = part2(INPUT); // 55218
-    println!("Took: {:?}", now.elapsed());
-    println!("Part 2: {}", s);
+    println!("Part 2: {} ({:?})", part2(INPUT), now.elapsed()); // 55218
 }
 
 fn part1(input: &str) -> u32 {
@@ -55,25 +51,25 @@ fn part2(input: &str) -> u32 {
 mod tests {
     use super::*;
 
-    const EXAMPLE1: &str = r#"\
+    const EXAMPLE1: &str = "\
 1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
-treb7uchet"#;
+treb7uchet";
 
     #[test]
     fn test_part1() {
         assert_eq!(part1(EXAMPLE1), 142);
     }
 
-    const EXAMPLE2: &str = r#"\
+    const EXAMPLE2: &str = "\
 two1nine
 eightwothree
 abcone2threexyz
 xtwone3four
 4nineeightseven2
 zoneight234
-7pqrstsixteen"#;
+7pqrstsixteen";
 
     #[test]
     fn test_part2() {
