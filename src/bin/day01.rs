@@ -1,12 +1,4 @@
-static INPUT: &str = include_str!("../../assets/day01.txt");
-
-fn main() {
-    let now = std::time::Instant::now();
-    println!("Part 1: {} ({:?})", part1(INPUT), now.elapsed()); // 54951
-
-    let now = std::time::Instant::now();
-    println!("Part 2: {} ({:?})", part2(INPUT), now.elapsed()); // 55218
-}
+aoc2023::main!("../../assets/day01.txt");
 
 fn part1(input: &str) -> u32 {
     input
@@ -47,32 +39,20 @@ fn part2(input: &str) -> u32 {
         })
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    const EXAMPLE1: &str = "\
+aoc2023::test!(
+    "\
 1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
-treb7uchet";
-
-    #[test]
-    fn test_part1() {
-        assert_eq!(part1(EXAMPLE1), 142);
-    }
-
-    const EXAMPLE2: &str = "\
+treb7uchet",
+    142,
+    "\
 two1nine
 eightwothree
 abcone2threexyz
 xtwone3four
 4nineeightseven2
 zoneight234
-7pqrstsixteen";
-
-    #[test]
-    fn test_part2() {
-        assert_eq!(part2(EXAMPLE2), 281);
-    }
-}
+7pqrstsixteen",
+    281
+);

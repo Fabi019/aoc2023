@@ -1,14 +1,6 @@
 use std::collections::VecDeque;
 
-static INPUT: &str = include_str!("../../assets/day03.txt");
-
-fn main() {
-    let now = std::time::Instant::now();
-    println!("Part 1: {} ({:?})", part1(INPUT), now.elapsed()); // 546312
-
-    let now = std::time::Instant::now();
-    println!("Part 2: {} ({:?})", part2(INPUT), now.elapsed()); // 87449461
-}
+aoc2023::main!("../../assets/day03.txt");
 
 const OFFSETS: [(i32, i32); 8] = [
     (0, 1),
@@ -88,7 +80,7 @@ fn part2(input: &str) -> u32 {
                 .filter(|c| c.1 == &'*')
                 .fold(0, |acc, (x, _)| {
                     // List of nearby numbers
-                    let mut numbers = Vec::with_capacity(4);
+                    let mut numbers = Vec::with_capacity(2);
 
                     // Check around the pixel for a number
                     for (dx, dy) in OFFSETS {
@@ -97,7 +89,6 @@ fn part2(input: &str) -> u32 {
                             .and_then(|l| l.get((x as i32 + dx) as usize))
                             .and_then(|c| c.to_digit(10))
                         {
-                            // Check left and right for follwing digits
                             let mut number = VecDeque::with_capacity(3);
                             number.push_back(d);
 
@@ -143,11 +134,8 @@ fn part2(input: &str) -> u32 {
         .sum()
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    const EXAMPLE1: &str = "\
+aoc2023::test!(
+    "\
 467..114..
 ...*......
 ..35..633.
@@ -157,16 +145,7 @@ mod tests {
 ..592.....
 ......755.
 ...$.*....
-.664.598..
-";
-
-    #[test]
-    fn test_part1() {
-        assert_eq!(part1(EXAMPLE1), 4361);
-    }
-
-    #[test]
-    fn test_part2() {
-        assert_eq!(part2(EXAMPLE1), 467835);
-    }
-}
+.664.598..",
+    4361,
+    467835
+);
