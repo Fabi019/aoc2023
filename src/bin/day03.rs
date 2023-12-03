@@ -78,9 +78,8 @@ fn part2(input: &str) -> u32 {
             line.iter()
                 .enumerate()
                 .filter(|c| c.1 == &'*')
-                .fold(0, |acc, (x, _)| {
-                    // List of nearby numbers
-                    let mut numbers = Vec::with_capacity(2);
+                .filter_map(|(x, _)| {
+                    let mut score = 0;
 
                     // Check around the pixel for a number
                     for (dx, dy) in OFFSETS {
@@ -112,24 +111,17 @@ fn part2(input: &str) -> u32 {
                             // Parse the number
                             let number = number.into_iter().fold(0, |acc, d| acc * 10 + d);
 
-                            if !numbers.contains(&number) {
-                                numbers.push(number);
-                            }
-
-                            // Exit early if we have found two numbers
-                            if numbers.len() == 2 {
-                                break;
+                            if score == 0 {
+                                score = number;
+                            } else if score > 0 && score != number {
+                                return Some(score * number);
                             }
                         }
                     }
 
-                    // Calculate gear score
-                    if numbers.len() == 2 {
-                        acc + numbers[0] * numbers[1]
-                    } else {
-                        acc
-                    }
+                    None
                 })
+                .sum::<u32>()
         })
         .sum()
 }
