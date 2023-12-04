@@ -1,25 +1,30 @@
-use std::collections::HashMap;
-
 aoc2023::main!("../../assets/day04.txt");
 
 fn part1(input: &str) -> u32 {
     input
         .lines()
-        .map(|l| {
+        .filter_map(|l| {
             let (_, card) = l.split_once(": ").unwrap();
             let (winning, numbers) = card.split_once(" | ").unwrap();
 
             let winning = winning.split_whitespace().collect::<Vec<_>>();
-            numbers
+            let matches = numbers
                 .split_whitespace()
                 .filter(|n| winning.contains(n))
-                .fold(0, |acc, _| (acc + acc).max(1))
+                .count() as u32;
+
+            if matches > 0 {
+                Some(1 << (matches - 1))
+            } else {
+                None
+            }
         })
         .sum()
 }
 
 fn part2(input: &str) -> u32 {
-    let mut counts = HashMap::new();
+    let max = input.lines().count();
+    let mut counts = vec![0; max];
 
     input
         .lines()
@@ -29,18 +34,16 @@ fn part2(input: &str) -> u32 {
             let (winning, numbers) = card.split_once(" | ").unwrap();
 
             let winning = winning.split_whitespace().collect::<Vec<_>>();
-            let s = numbers
+            let matches = numbers
                 .split_whitespace()
                 .filter(|n| winning.contains(n))
                 .count();
 
-            let entry = counts.entry(id).or_insert(0);
-            *entry += 1;
-            let entry = *entry;
+            let entry = counts[id] + 1;
 
-            for i in 1..=s {
-                let next = counts.entry(id + i).or_insert(0);
-                *next += entry;
+            #[allow(clippy::needless_range_loop)]
+            for i in id..=(id + matches).min(max) {
+                counts[i] += entry;
             }
 
             entry
