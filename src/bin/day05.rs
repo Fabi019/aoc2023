@@ -1,4 +1,4 @@
-#![feature(test)]
+use std::collections::VecDeque;
 
 aoc2023::main!("../../assets/day05.txt");
 
@@ -10,11 +10,9 @@ fn part1(input: &str) -> u64 {
         .collect::<Vec<_>>();
 
     for map in input {
-        let mut mapping = map.lines();
-
-        println!("{}", mapping.next().unwrap());
-
-        let ranges = mapping
+        let ranges = map
+            .lines()
+            .skip(1)
             .map(|l| {
                 let mut range = l.split_whitespace();
                 let target = range.next().unwrap().parse::<u64>().unwrap();
@@ -27,7 +25,7 @@ fn part1(input: &str) -> u64 {
         seeds.iter_mut().for_each(|seed| {
             for &(target, lower, upper) in &ranges {
                 if *seed >= lower && *seed < upper {
-                    *seed += target - lower;
+                    *seed = *seed + target - lower;
                     break;
                 }
             }
@@ -39,7 +37,7 @@ fn part1(input: &str) -> u64 {
 
 fn part2(input: &str) -> u64 {
     let mut input = input.split("\n\n");
-    let mut seeds = input.next().unwrap()[7..]
+    let seeds = input.next().unwrap()[7..]
         .split_whitespace()
         .map(|n| n.parse::<u64>().unwrap())
         .collect::<Vec<_>>();
@@ -48,16 +46,14 @@ fn part2(input: &str) -> u64 {
     for range in seeds.chunks_exact(2).clone() {
         let start = range[0];
         let length = range[1];
-        new_seeds.extend(start..start + length);
+        new_seeds.push((start, start + length));
     }
-    seeds = new_seeds;
+    let mut seeds = new_seeds;
 
     for map in input {
-        let mut mapping = map.lines();
-
-        println!("{}", mapping.next().unwrap());
-
-        let ranges = mapping
+        let ranges = map
+            .lines()
+            .skip(1)
             .map(|l| {
                 let mut range = l.split_whitespace();
                 let target = range.next().unwrap().parse::<u64>().unwrap();
@@ -67,17 +63,58 @@ fn part2(input: &str) -> u64 {
             })
             .collect::<Vec<_>>();
 
-        seeds.iter_mut().for_each(|seed| {
+        let mut seed_queue = VecDeque::new();
+        seed_queue.extend(seeds.into_iter());
+
+        let mut new_seeds = Vec::new();
+
+        while let Some((start, end)) = seed_queue.pop_front() {
+            let mut found = false;
+
             for &(target, lower, upper) in &ranges {
-                if *seed >= lower && *seed < upper {
-                    *seed = *seed - lower + target;
+                if start >= lower && start < upper && end < upper {
+                    // Complete range is in bounds
+                    let s = start + target - lower;
+                    let e = end + target - lower;
+                    new_seeds.push((s, e));
+                    found = true;
+                    break;
+                } else if start >= lower && start < upper {
+                    // Start is in bounds, end is not
+                    let s = start + target - lower;
+                    let e = upper - 1 + target - lower;
+                    new_seeds.push((s, e));
+                    seed_queue.push_back((upper, end));
+                    found = true;
+                    break;
+                } else if start < lower && end >= lower && end < upper {
+                    // End is in bounds, start is not
+                    let s = lower + target - lower;
+                    let e = end + target - lower;
+                    new_seeds.push((s, e));
+                    seed_queue.push_back((start, lower - 1));
+                    found = true;
+                    break;
+                } else if start < lower && end >= upper {
+                    // Neither start nor end are in bounds
+                    new_seeds.push((lower + target - lower, upper - 1 + target - lower));
+                    seed_queue.push_back((upper, end));
+                    seed_queue.push_back((start, lower - 1));
+                    found = true;
                     break;
                 }
             }
-        });
+
+            if !found {
+                // No overlap with any range
+                new_seeds.push((start, end));
+            }
+        }
+
+        seeds = new_seeds;
     }
 
-    *seeds.iter().min().unwrap()
+    seeds.iter().map(|s| s.0).min().unwrap()
 }
 
 aoc2023::test!(
