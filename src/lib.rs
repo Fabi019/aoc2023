@@ -48,3 +48,25 @@ macro_rules! test {
         }
     };
 }
+
+#[macro_export]
+macro_rules! bench {
+    ($day:ident) => {
+        mod $day {
+            use criterion::Criterion;
+
+            include!(concat!("../src/bin/", stringify!($day), ".rs"));
+
+            pub fn bench(c: &mut Criterion) {
+                let mut group = c.benchmark_group(stringify!($day));
+                group.bench_function("1", |b| {
+                    b.iter(|| part1(INPUT))
+                });
+                group.bench_function("2", |b| {
+                    b.iter(|| part2(INPUT))
+                });
+                group.finish();
+            }
+        }
+    };
+}
