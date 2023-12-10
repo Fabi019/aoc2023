@@ -47,30 +47,25 @@ fn part2(input: &str) -> i32 {
         map[start.1][start.0] = '7'; // Test input
     }
 
+    let grid_size = map.len() * map[0].len(); // Original size for later
+
     let mut visited = HashSet::new();
     bfs(start, &mut visited, &map);
 
-    // Only print the loop path and remove all cells other than loop path
+    // Remove all cells other than loop path
     for y in 0..map.len() {
         for x in 0..map[y].len() {
-            if visited.contains(&(x, y)) {
-                print!("{}", map[y][x]);
-            } else {
-                print!(" ");
+            if !visited.contains(&(x, y)) {
                 map[y][x] = ' ';
             }
         }
-        println!();
     }
 
     // Double coordinates in the map and extend all pipes
-    let mut map2 = Vec::new();
-    map2.push(vec![' '; map[0].len() * 2 + 1]);
+    let mut map2 = vec![vec![' '; map[0].len() * 2 + 1]];
     for y in 0..map.len() {
-        let mut line = Vec::new();
-        line.push(' ');
-        let mut below = Vec::new();
-        below.push(' ');
+        let mut line = vec![' '];
+        let mut below = vec![' '];
         for x in 0..map[y].len() {
             line.push(map[y][x]);
             match map[y][x] {
@@ -86,50 +81,22 @@ fn part2(input: &str) -> i32 {
         map2.push(line);
         map2.push(below);
     }
-    let grid_size = map.len() * map[0].len(); // Original size for later
     let map = map2;
-
-    // Print map
-    for y in 0..map.len() {
-        for x in 0..map[y].len() {
-            print!("{}", map[y][x]);
-        }
-        println!();
-    }
 
     let mut outside = HashSet::new();
     flood_fill((0, 0), &mut outside, &map);
 
-    for y in 0..map.len() {
-        for x in 0..map[y].len() {
-            if outside.contains(&(x, y)) {
-                print!("O");
-            } else {
-                print!("{}", map[y][x]);
-            }
-        }
-        println!();
-    }
-
     // Count only odd coordinates
-    let mut ouside_count = 0;
-    for y in 0..map.len() {
-        if y % 2 == 1 {
-            for x in 0..map[y].len() {
-                if x % 2 == 1 {
-                    if outside.contains(&(x, y)) {
-                        ouside_count += 1;
-                        print!("O");
-                    } else {
-                        print!("{}", map[y][x]);
-                    }
-                }
+    let mut outside_count = 0;
+    for y in (1..map.len()).step_by(2) {
+        for x in (1..map[0].len()).step_by(2) {
+            if outside.contains(&(x, y)) {
+                outside_count += 1;
             }
-            println!();
         }
     }
 
-    (grid_size - visited.len() - ouside_count) as i32
+    (grid_size - visited.len() - outside_count) as i32
 }
 
 fn bfs(start: (usize, usize), visited: &mut HashSet<(usize, usize)>, map: &[Vec<char>]) -> u32 {
@@ -142,22 +109,22 @@ fn bfs(start: (usize, usize), visited: &mut HashSet<(usize, usize)>, map: &[Vec<
             continue;
         }
 
-        println!("{dist}: {x} {y} -> {}", map[y][x]);
-
         max_dist = max_dist.max(dist);
+        
+        let current = &map[y][x];
         let new_dist = Reverse(dist + 1);
-        let cell = &map[y][x];
 
-        if matches!(cell, '|' | 'J' | 'L') {
+        // No bounds check needed
+        if matches!(current, '|' | 'J' | 'L') {
             queue.push((new_dist, (x, y - 1)));
         }
-        if matches!(cell, '|' | '7' | 'F') {
+        if matches!(current, '|' | '7' | 'F') {
             queue.push((new_dist, (x, y + 1)));
         }
-        if matches!(cell, '-' | '7' | 'J' if x > 0) {
+        if matches!(current, '-' | '7' | 'J') {
             queue.push((new_dist, (x - 1, y)));
         }
-        if matches!(cell, '-' | 'L' | 'F') {
+        if matches!(current, '-' | 'L' | 'F') {
             queue.push((new_dist, (x + 1, y)));
         }
     }
@@ -170,9 +137,9 @@ fn flood_fill(start: (usize, usize), visited: &mut HashSet<(usize, usize)>, map:
     queue.push_back(start);
 
     while let Some((x, y)) = queue.pop_front() {
-        let cell = &map[y][x];
+        let current = &map[y][x];
 
-        if cell != &' ' || !visited.insert((x, y)) {
+        if current != &' ' || !visited.insert((x, y)) {
             continue;
         }
 

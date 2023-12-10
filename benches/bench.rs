@@ -7,12 +7,14 @@ use criterion::{criterion_group, criterion_main};
 aoc2023::bench!(day07);
 aoc2023::bench!(day08);
 aoc2023::bench!(day09);
+aoc2023::bench!(day10);
 
 criterion_group!(
     benches,  
     day07::bench,
     day08::bench,
-    day09::bench
+    day09::bench,
+    day10::bench
 );
 
 criterion_main!(benches);
