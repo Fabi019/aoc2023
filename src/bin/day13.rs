@@ -36,20 +36,15 @@ fn part2(input: &str) -> usize {
 fn check_symmetry(grid: &[Vec<bool>], max_diff: usize) -> usize {
     for i in 0..grid.len() - 1 {
         let mut diffs = 0;
-        let mut expected = grid[..i + 1].iter().rev();
 
-        for actual in &grid[i + 1..] {
-            if let Some(exp) = expected.next() {
-                for (a, b) in exp.iter().zip(actual.iter()) {
-                    if a != b {
-                        diffs += 1;
-                        if diffs > max_diff {
-                            break;
-                        }
+        for (exp, actual) in grid[..i + 1].iter().rev().zip(&grid[i + 1..]) {
+            for (a, b) in exp.iter().zip(actual.iter()) {
+                if a != b {
+                    diffs += 1;
+                    if diffs > max_diff {
+                        break;
                     }
                 }
-            } else {
-                break;
             }
         }
 
@@ -57,6 +52,7 @@ fn check_symmetry(grid: &[Vec<bool>], max_diff: usize) -> usize {
             return i + 1;
         }
     }
+    
     0
 }
 
