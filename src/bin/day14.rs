@@ -2,13 +2,12 @@ use std::collections::HashMap;
 
 aoc2023::main!("../../assets/day14.txt");
 
-fn part1(input: &str) -> u32 {
+fn part1(input: &str) -> usize {
     let mut grid = input
         .lines()
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
 
-    // Go through each row and push the round rocks as far north as possible
     for y in 0..grid.len() {
         for x in 0..grid[y].len() {
             if grid[y][x] == 'O' {
@@ -22,19 +21,15 @@ fn part1(input: &str) -> u32 {
         }
     }
 
-    let mut total_load = 0;
-    for (i, line) in grid.iter().enumerate() {
-        let rock_count = line.iter().filter(|&&c| c == 'O').count();
-        let load = (grid.len() - i) * rock_count;
-        total_load += load;
-    }
-
-    total_load as u32
+    grid.iter().enumerate().fold(0, |acc, (i, line)| {
+        let rocks = line.iter().filter(|&&c| c == 'O');
+        acc + (grid.len() - i) * rocks.count()
+    })
 }
 
-fn part2(input: &str) -> u32 {
+fn part2(input: &str) -> usize {
     const TOTAL: i32 = 1000000000;
-    
+
     let mut grid = input
         .lines()
         .map(|line| line.chars().collect::<Vec<_>>())
@@ -56,14 +51,10 @@ fn part2(input: &str) -> u32 {
         }
     }
 
-    let mut total_load = 0;
-    for (i, line) in grid.iter().enumerate() {
-        let rock_count = line.iter().filter(|&&c| c == 'O').count();
-        let load = (grid.len() - i) * rock_count;
-        total_load += load;
-    }
-
-    total_load as u32
+    grid.iter().enumerate().fold(0, |acc, (i, line)| {
+        let rocks = line.iter().filter(|&&c| c == 'O');
+        acc + (grid.len() - i) * rocks.count()
+    })
 }
 
 fn cycle_board(grid: &mut Vec<Vec<char>>) {
@@ -120,6 +111,41 @@ fn cycle_board(grid: &mut Vec<Vec<char>>) {
         }
     }
 }
+
+// Alternative implementation (shorter, but 2x slower)
+// fn cycle_board(grid: &mut Vec<Vec<char>>) {
+//     for (dx, dy) in [(0, -1), (-1, 0), (0, 1), (1, 0)] {
+//         let mut moved = true;
+//         while moved {
+//             moved = false;
+
+//             for y in 0..grid.len() {
+//                 for x in 0..grid[0].len() {
+//                     if grid[y][x] == 'O' {
+//                         grid[y][x] = '.';
+
+//                         let mut y = y as i32;
+//                         let mut x = x as i32;
+
+//                         while let Some(c) = grid
+//                             .get((y + dy) as usize)
+//                             .and_then(|l| l.get((x + dx) as usize))
+//                         {
+//                             if *c != '.' {
+//                                 break;
+//                             }
+//                             y += dy;
+//                             x += dx;
+//                             moved = true;
+//                         }
+
+//                         grid[y as usize][x as usize] = 'O';
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
 
 aoc2023::test!(
     "\
