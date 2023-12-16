@@ -1,64 +1,52 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
 
 aoc2023::main!("../../assets/day15.txt");
 
 fn part1(input: &str) -> u32 {
-    let mut hash_sum = 0;
-    for s in input.lines().next().unwrap().split(',') {
-        let mut hash = 0;
-        for c in s.chars() {
-            hash += (c as u8) as u32;
-            hash *= 17;
-            hash %= 256;
-        }
-        hash_sum += hash;
-    }
-    hash_sum
+    input.lines().next().unwrap().split(',').map(dohash).sum()
 }
 
 fn part2(input: &str) -> u32 {
     let mut boxes = HashMap::new();
+
     for s in input.lines().next().unwrap().split(',') {
         if s.ends_with('-') {
             let label = s.strip_suffix('-').unwrap();
             let hash = dohash(label);
-            boxes
-                .entry(hash)
-                .and_modify(|v: &mut VecDeque<(&str, u32)>| {
-                    v.retain(|(k, _)| k != &label);
-                });
+            // Remove if it is present
+            boxes.entry(hash).and_modify(|v: &mut Vec<(&str, u32)>| {
+                if let Some(i) = v.iter().position(|(k, _)| k == &label) {
+                    v.remove(i);
+                }
+            });
         } else if s.contains('=') {
             let (label, focal) = s.split_once('=').unwrap();
             let hash = dohash(label);
-
-            let vec = boxes.entry(hash).or_insert(VecDeque::new());
-
-            let mut found = false;
-            for (k, v) in vec.iter_mut() {
-                if k == &label {
-                    *v = focal.parse().unwrap();
-                    found = true;
-                }
-            }
-            if !found {
-                vec.push_back((label, focal.parse().unwrap()));
+            // Using a hashmap is not possible because the order is important
+            let vec = boxes.entry(hash).or_insert(Vec::new());
+            // Update if it is present
+            if let Some(i) = vec.iter().position(|(k, _)| k == &label) {
+                vec[i].1 = focal.parse().unwrap();
+            } else {
+                vec.push((label, focal.parse().unwrap()));
             }
         }
     }
-    let mut focal_sum = 0;
-    for (hash, v) in boxes {
-        for (i, (_, v)) in v.iter().enumerate() {
-            let slot = i + 1;
-            focal_sum += (hash + 1) * slot as u32 * v;
-        }
-    }
-    focal_sum
+
+    boxes
+        .into_iter()
+        .flat_map(|(hash, v)| {
+            v.into_iter()
+                .enumerate()
+                .map(move |(i, (_, v))| (hash + 1) * (i + 1) as u32 * v)
+        })
+        .sum()
 }
 
 fn dohash(s: &str) -> u32 {
     let mut hash = 0;
     for c in s.chars() {
-        hash += (c as u8) as u32;
+        hash += c as u32;
         hash *= 17;
         hash %= 256;
     }
