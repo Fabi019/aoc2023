@@ -13,6 +13,7 @@ aoc2023::bench!(day13);
 aoc2023::bench!(day14);
 aoc2023::bench!(day15);
 aoc2023::bench!(day16);
+aoc2023::bench!(day17);
 
 criterion_group!(
     benches,
@@ -24,7 +25,8 @@ criterion_group!(
     day13::bench,
     day14::bench,
     day15::bench,
-    day16::bench
+    day16::bench,
+    day17::bench
 );
 
 criterion_main!(benches);
