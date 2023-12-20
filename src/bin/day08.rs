@@ -55,23 +55,7 @@ fn part2(input: &str) -> u64 {
                 })
                 .count() as u64
         })
-        .fold(1, lcm)
-}
-
-fn gcd(a: u64, b: u64) -> u64 {
-    if b == 0 {
-        a
-    } else {
-        gcd(b, a % b)
-    }
-}
-
-fn lcm(a: u64, b: u64) -> u64 {
-    if a == 0 || b == 0 {
-        0
-    } else {
-        (a * b) / gcd(a, b)
-    }
+        .fold(1, aoc2023::lcm)
 }
 
 aoc2023::test!(

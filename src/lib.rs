@@ -59,14 +59,26 @@ macro_rules! bench {
 
             pub fn bench(c: &mut Criterion) {
                 let mut group = c.benchmark_group(stringify!($day));
-                group.bench_function("1", |b| {
-                    b.iter(|| part1(INPUT))
-                });
-                group.bench_function("2", |b| {
-                    b.iter(|| part2(INPUT))
-                });
+                group.bench_function("1", |b| b.iter(|| part1(INPUT)));
+                group.bench_function("2", |b| b.iter(|| part2(INPUT)));
                 group.finish();
             }
         }
     };
+}
+
+pub fn gcd(a: u64, b: u64) -> u64 {
+    if b == 0 {
+        a
+    } else {
+        gcd(b, a % b)
+    }
+}
+
+pub fn lcm(a: u64, b: u64) -> u64 {
+    if a == 0 || b == 0 {
+        0
+    } else {
+        (a * b) / gcd(a, b)
+    }
 }
