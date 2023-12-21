@@ -10,7 +10,7 @@ fn part1(input: &str) -> usize {
         let mut row = Vec::new();
         for (x, c) in line.char_indices() {
             if c == 'S' {
-                start = (x, y);
+                start = (x as isize, y as isize);
                 row.push('.');
             } else {
                 row.push(c);
@@ -26,30 +26,24 @@ fn part1(input: &str) -> usize {
 
 fn make_steps(
     map: &Vec<Vec<char>>,
-    start: (usize, usize),
+    start: (isize, isize),
     max_steps: usize,
     infinite_map: bool,
 ) -> usize {
-    let start = (start.0 as isize, start.1 as isize);
-
     let mut queue = VecDeque::new();
     queue.push_back(vec![start]);
 
     let mut step = 0;
-    let mut last_count = 0;
 
     // Iterate through all steps
     while let Some(positions) = queue.pop_front() {
-        if step > max_steps {
-            break;
-        }
-
         let mut visited = HashSet::new();
         let mut new_positions = Vec::new();
 
         for pos in positions {
             let (x, y) = pos;
 
+            // Wrap around the map (for infinite maps)
             let mut ny = y % map.len() as isize;
             let mut nx = x % map[0].len() as isize;
 
@@ -61,11 +55,8 @@ fn make_steps(
                 nx += map[0].len() as isize;
             }
 
-            if map[ny as usize][nx as usize] == '#' {
-                continue;
-            }
-
-            if !visited.insert(pos) {
+            // Check if we can move to the next position
+            if map[ny as usize][nx as usize] == '#' || !visited.insert(pos) {
                 continue;
             }
 
@@ -83,14 +74,16 @@ fn make_steps(
             }
         }
 
-        //println!("Step {}: {}", step, visited.len());
-        last_count = visited.len();
+        step += 1;
+        
+        if step > max_steps {
+            return visited.len();
+        }
 
         queue.push_back(new_positions);
-        step += 1;
     }
 
-    last_count
+    unreachable!()
 }
 
 fn part2(input: &str) -> usize {
@@ -101,7 +94,7 @@ fn part2(input: &str) -> usize {
         let mut row = Vec::new();
         for (x, c) in line.char_indices() {
             if c == 'S' {
-                start = (x, y);
+                start = (x as isize, y as isize);
                 row.push('.');
             } else {
                 row.push(c);
@@ -118,7 +111,7 @@ fn part2(input: &str) -> usize {
     let max_steps = 26501365;
 
     let size = map.len();
-    let half = size / 2;
+    let half = size >> 1;
 
     println!("Size: {size}, Half: {half}");
 
