@@ -13,3 +13,5 @@ name = "bench"
 harness = false
 
 [dependencies]
+z3 = { version = "0.12.1", features = ["static-link-z3"] }
+mimalloc = { version = "*", default-features = false }
